@@ -1,23 +1,19 @@
-// app/api/refresh-ds/route.ts
+export const maxDuration = 300; // allow up to 5 minutes
 
-export const runtime = "nodejs"; // we’ll need Node for crawling later
-export const maxDuration = 300;  // allows longer processing (plan limits apply)
+export async function GET(request: Request) {
+  // 1. Check secret so only Vercel cron can run this
+  const authHeader = request.headers.get("authorization");
 
-export async function GET(req: Request) {
-  const auth = req.headers.get("authorization");
-  const expected = `Bearer ${process.env.CRON_SECRET}`;
-
-  if (!process.env.CRON_SECRET) {
-    return new Response("CRON_SECRET is not set", { status: 500 });
-  }
-
-  if (auth !== expected) {
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  // For now: just prove the endpoint works.
+  // 2. Log so we can confirm it ran
+  console.log("Davis-Stirling refresh cron triggered");
+
+  // 3. Respond OK
   return new Response(
-    JSON.stringify({ ok: true, message: "refresh endpoint reached" }),
-    { status: 200, headers: { "content-type": "application/json" } }
+    JSON.stringify({ status: "ok", message: "Cron ran successfully" }),
+    { status: 200, headers: { "Content-Type": "application/json" } }
   );
 }
