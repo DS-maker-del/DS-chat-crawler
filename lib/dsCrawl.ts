@@ -1,5 +1,12 @@
 import * as cheerio from "cheerio";
 
+function cleanText(text: string) {
+  return text
+    .replace(/\s+/g, " ")
+    .replace(/\u00a0/g, " ")
+    .trim();
+}
+
 export async function getUrlsFromSitemap(
   sitemapUrl: string,
   limit: number
