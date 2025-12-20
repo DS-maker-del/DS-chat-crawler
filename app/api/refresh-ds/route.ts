@@ -24,6 +24,8 @@ export async function GET(request: Request) {
 
     const urls = await getUrlsFromSitemap(sitemapUrl, maxPages);
     console.log("URLs found:", urls.length);
+console.log("First 10 URLs:", urls.slice(0, 10));
+
 
     // 1) Crawl pages (sequential, polite)
     const docs: { url: string; text: string }[] = [];
@@ -39,6 +41,22 @@ export async function GET(request: Request) {
     }
 
     console.log("Crawl finished. Pages:", docs.length);
+if (docs.length === 0) {
+  return new Response(
+    JSON.stringify({
+      status: "no_data",
+      urls_found: urls.length,
+      pages_crawled: docs.length,
+      hint:
+        urls.length === 0
+          ? "Sitemap parsed 0 URLs. Check DS_SITEMAP_URL and sitemap parsing."
+          : "All page fetches failed. Check Vercel logs for Crawl error lines (403/404/429).",
+      sample_urls: urls.slice(0, 10),
+    }),
+    { status: 200, headers: { "Content-Type": "application/json" } }
+  );
+}
+
 
     // 2) Create a NEW vector store (green)
     const vectorStore = await openai.vectorStores.create({
