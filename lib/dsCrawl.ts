@@ -9,27 +9,40 @@ function cleanText(text: string) {
 
 export async function getUrlsFromSitemap(sitemapUrl: string, limit: number) {
   const res = await fetch(sitemapUrl, {
-  headers: {
-    "User-Agent":
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.9",
-  },
-});
-  if (!res.ok) throw new Error(`Failed to fetch sitemap: ${res.status}`);
-  const xml = await res.text();
-
-  // Basic sitemap parsing (works for simple sitemap.xml)
-  const $ = cheerio.load(xml, { xmlMode: true });
-  const urls: string[] = [];
-
-  $("url > loc").each((_, el) => {
-    const loc = $(el).text().trim();
-    if (loc.startsWith("https://www.davis-stirling.com/")) urls.push(loc);
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Accept": "text/html",
+      "Accept-Language": "en-US,en;q=0.9",
+    },
   });
 
-  return urls.slice(0, limit);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch sitemap: ${res.status}`);
+  }
+
+  const html = await res.text();
+  const $ = cheerio.load(html);
+
+  const urls = new Set<string>();
+
+  $("a[href]").each((_, el) => {
+    const href = $(el).attr("href");
+    if (!href) return;
+
+    // Normalize relative URLs
+    const fullUrl = href.startsWith("http")
+      ? href
+      : `https://www.davis-stirling.com${href}`;
+
+    if (fullUrl.startsWith("https://www.davis-stirling.com/")) {
+      urls.add(fullUrl.split("#")[0]);
+    }
+  });
+
+  return Array.from(urls).slice(0, limit);
 }
+
 
 export async function fetchPageAsText(url: string) {
  const res = await fetch(url, {
