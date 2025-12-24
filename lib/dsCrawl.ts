@@ -16,6 +16,7 @@ export async function getUrlsFromSitemap(
       "User-Agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       "Accept": "application/xml,text/xml;q=0.9,*/*;q=0.8",
+      "X-DS-Crawler-Token": process.env.ds_crawl_token || "",
     },
   });
 
@@ -48,6 +49,7 @@ export async function fetchPageAsText(url: string) {
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "en-US,en;q=0.9",
+    "X-DS-Crawler-Token": process.env.ds_crawl_token || "",
   },
 });
 

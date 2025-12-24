@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "crawl:local": "node --env-file=.env.local scripts/crawl-local.mjs",
+    "upload:openai": "node --env-file=.env.local scripts/upload-to-openai.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
